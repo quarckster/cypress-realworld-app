@@ -1,4 +1,3 @@
-import { User } from "../../../src/models";
 import { isMobile } from "../../support/utils";
 
 const apiGraphQL = `${Cypress.env("apiUrl")}/graphql`;
@@ -18,33 +17,8 @@ describe("User Sign-up and Login", function () {
   });
 
   it("should redirect unauthenticated user to signin page", function () {
-    cy.visit("/personal");
-    cy.location("pathname").should("equal", "/signin");
-    cy.visualSnapshot("Redirect to SignIn");
-  });
-
-  it("should redirect to the home page after login", function () {
-    cy.database("find", "users").then((user: User) => {
-      cy.login(user.username, "s3cret", { rememberUser: true });
-    });
-    cy.location("pathname").should("equal", "/");
-  });
-
-  it("should remember a user for 30 days after login", function () {
-    cy.database("find", "users").then((user: User) => {
-      cy.login(user.username, "s3cret", { rememberUser: true });
-    });
-
-    // Verify Session Cookie
-    cy.getCookie("connect.sid").should("have.property", "expiry");
-
-    // Logout User
-    if (isMobile()) {
-      cy.getBySel("sidenav-toggle").click();
-    }
-    cy.getBySel("sidenav-signout").click();
-    cy.location("pathname").should("eq", "/signin");
-    cy.visualSnapshot("Redirect to SignIn");
+    // 1. Visit /personal
+    // 2. Check if redirected to /signin
   });
 
   it("should allow a visitor to sign-up, login, and logout", function () {
@@ -109,66 +83,33 @@ describe("User Sign-up and Login", function () {
   });
 
   it("should display login errors", function () {
-    cy.visit("/");
-
-    cy.getBySel("signin-username").type("User").find("input").clear().blur();
-    cy.get("#username-helper-text").should("be.visible").and("contain", "Username is required");
-    cy.visualSnapshot("Display Username is Required Error");
-
-    cy.getBySel("signin-password").type("abc").find("input").blur();
-    cy.get("#password-helper-text")
-      .should("be.visible")
-      .and("contain", "Password must contain at least 4 characters");
-    cy.visualSnapshot("Display Password Error");
-
-    cy.getBySel("signin-submit").should("be.disabled");
-    cy.visualSnapshot("Sign In Submit Disabled");
+    // 1. Visit /
+    // 2. Type "User" into username field
+    // 3. Check if error message is displayed and contains "Username is required"
+    // 4. Type "abc" into password field
+    // 5. Check if error message is displayed and contains "Password must contain at least 4 characters"
+    // 6. Check if "Sign In" button is disabled
   });
 
   it("should display signup errors", function () {
+
     cy.intercept("GET", "/signup");
-
-    cy.visit("/signup");
-
-    cy.getBySel("signup-first-name").type("First").find("input").clear().blur();
-    cy.get("#firstName-helper-text").should("be.visible").and("contain", "First Name is required");
-
-    cy.getBySel("signup-last-name").type("Last").find("input").clear().blur();
-    cy.get("#lastName-helper-text").should("be.visible").and("contain", "Last Name is required");
-
-    cy.getBySel("signup-username").type("User").find("input").clear().blur();
-    cy.get("#username-helper-text").should("be.visible").and("contain", "Username is required");
-
-    cy.getBySel("signup-password").type("password").find("input").clear().blur();
-    cy.get("#password-helper-text").should("be.visible").and("contain", "Enter your password");
-
-    cy.getBySel("signup-confirmPassword").type("DIFFERENT PASSWORD").find("input").blur();
-    cy.get("#confirmPassword-helper-text")
-      .should("be.visible")
-      .and("contain", "Password does not match");
-    cy.visualSnapshot("Display Sign Up Required Errors");
-
-    cy.getBySel("signup-submit").should("be.disabled");
-    cy.visualSnapshot("Sign Up Submit Disabled");
+    // 1. Visit /signup
+    // 2. Type "First" into first name field
+    // 3. Check if error message is displayed and contains "First name is required"
+    // 4. Type "Last" into last name field
+    // 5. Check if error message is displayed and contains "Last name is required"
+    // 6. Type "User" into username field
+    // 7. Check if error message is displayed and contains "Username is required"
+    // 8. Type "password" into password field
+    // 9. Check if error message is displayed and contains "Enter your password"
+    // 10. Type "DIFFERENT PASSWORD" into confirm password field
+    // 11. Check if error message is displayed and contains "Passwords does not match"
+    // 12. Check if "Sign Up" button is disabled
   });
 
   it("should error for an invalid user", function () {
-    cy.login("invalidUserName", "invalidPa$$word");
-
-    cy.getBySel("signin-error")
-      .should("be.visible")
-      .and("have.text", "Username or password is invalid");
-    cy.visualSnapshot("Sign In, Invalid Username and Password, Username or Password is Invalid");
-  });
-
-  it("should error for an invalid password for existing user", function () {
-    cy.database("find", "users").then((user: User) => {
-      cy.login(user.username, "INVALID");
-    });
-
-    cy.getBySel("signin-error")
-      .should("be.visible")
-      .and("have.text", "Username or password is invalid");
-    cy.visualSnapshot("Sign In, Invalid Username, Username or Password is Invalid");
+    // 1. Login with invalid user and password
+    // 2. Check if error message is displayed and contains "Username or password is invalid"
   });
 });
